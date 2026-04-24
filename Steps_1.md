@@ -81,13 +81,13 @@
   ]
 }
 ```
-5. Copy that json data correctly like give above..
+5. Copy that json data correctly like given above..
 
 ## Step 2: Solver 
 
 1. Go to https://p2-solver.onrender.com/
 2. Then Click on Q1
-3. there will be empty box, put there your copied data
+3. There will be an empty box, put there your copied data
 4. And then click on "Execute".. 
-5. BOOOOOMMM!! your answer will be shown in correct foramt.. just copy and paste that in portal.. 
-6. 12/12 is yours.
+5. 💥BOOOOOMMM!! your answer will be shown in correct format.. just copy and paste that in portal.. 
+6. 12/12 is yours.🎉🎉
