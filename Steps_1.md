@@ -4,10 +4,10 @@
 2. Press F12 and Go to console
 3. Paste given script in console and hit enter.
 ```
-/* OMEGA PORTAL SIPHON v3.0 (Absolute Extraction) */
+/* OMEGA PORTAL SIPHON v4.1 (Onion-Server Targeted) */
 (function() {
-    console.log("%c SINGULARITY DISCOVERY ACTIVE v3.0 ", "background: #000; color: #0f0; font-weight: bold;");
-   
+    console.log("%c SINGULARITY DISCOVERY ACTIVE v4.1 ", "background: #000; color: #0f0; font-weight: bold;");
+    
     const user = JSON.parse(localStorage.getItem('user'));
     if (!user) { console.error("Identity not found. Please log in first."); return; }
 
@@ -17,15 +17,14 @@
         mission: []
     };
 
-    // Deep search function using the portal's specific CSS classes
     const harvest = (doc) => {
+        // Look for the standard task structure inside the target frame
         doc.querySelectorAll('.question-item').forEach(item => {
             let num = item.querySelector('.q-num')?.innerText.trim() || "";
             let theme = item.querySelector('.q-theme')?.innerText.trim() || "";
             let query = item.querySelector('.q-text')?.innerText.trim() || "";
             let link = item.querySelector('.q-link')?.href || "";
-           
-            // Extract the Folder ID from the .onion URL pattern
+            
             let folder = null;
             if (link) {
                 let match = link.match(/\.onion\/(\d+)\//);
@@ -38,22 +37,50 @@
         });
     };
 
-    // Search main page and all internal iframes
-    harvest(document);
-    document.querySelectorAll('iframe').forEach(frame => {
+    // --- NEW TARGETED SELECTION ---
+    // We look for the iframe by ID or Name: 'q-onion-scrape-server' or 'questionId'
+    const selectors = [
+        'iframe#q-onion-scrape-server',
+        'iframe[name="q-onion-scrape-server"]',
+        'iframe#questionId',
+        'iframe[name="questionId"]'
+    ];
+    
+    let targetFrame = null;
+    for (let selector of selectors) {
+        targetFrame = document.querySelector(selector);
+        if (targetFrame) break;
+    }
+    
+    if (targetFrame) {
+        console.log("%c Target Frame Locked: " + (targetFrame.id || targetFrame.name), "color: #0f0; font-weight: bold;");
         try {
-            harvest(frame.contentDocument || frame.contentWindow.document);
-        } catch(e) {}
-    });
+            harvest(targetFrame.contentDocument || targetFrame.contentWindow.document);
+        } catch(e) {
+            console.error("Access blocked by browser security (CORS). Try running this script while the iframe is focused.");
+        }
+    } else {
+        // Absolute fallback: Search all iframes but ONLY harvest the one containing '.onion'
+        console.warn("Target ID not found. Searching for Onion-linked frames...");
+        document.querySelectorAll('iframe').forEach(frame => {
+            try {
+                const frameDoc = frame.contentDocument || frame.contentWindow.document;
+                if (frameDoc.body.innerHTML.includes('.onion')) {
+                    console.log("%c Auto-detected Onion Frame!", "color: #0ff;");
+                    harvest(frameDoc);
+                }
+            } catch(e) {}
+        });
+    }
 
     if (results.mission.length === 0) {
-        console.warn("No tasks found. Ensure the 'questionData' iframe is visible on your screen and run the script again.");
+        console.warn("CAPTURE FAILED: No tasks found in the 'q-onion-scrape-server' frame.");
     } else {
-        console.log("%c MISSION DATA CAPTURED: ", "color: #0ff; font-weight: bold;");
+        console.log("%c SUCCESS: Q1 DATA EXTRACTED ", "color: #0ff; font-weight: bold;");
         console.log(JSON.stringify(results, null, 2));
-        console.log("%c Copy this JSON into the Python Solver Hub. ", "color: #aaa;");
     }
 })();
+
 ```
 
 4. You will see json format data. eg.
